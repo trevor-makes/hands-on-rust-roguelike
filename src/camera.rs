@@ -9,18 +9,22 @@ pub struct Camera {
 
 impl Camera {
     pub fn new(player_position: Point) -> Self {
+        let left = player_position.x - DISPLAY_WIDTH / 2;
+        let top = player_position.y - DISPLAY_HEIGHT / 2;
         Self {
-            left_x: player_position.x - DISPLAY_WIDTH / 2,
-            right_x: player_position.x + DISPLAY_WIDTH / 2,
-            top_y: player_position.y - DISPLAY_HEIGHT / 2,
-            bottom_y: player_position.y + DISPLAY_HEIGHT / 2,
+            left_x: left,
+            right_x: left + DISPLAY_WIDTH,
+            top_y: top,
+            bottom_y: top + DISPLAY_HEIGHT,
         }
     }
 
     pub fn on_player_move(&mut self, player_position: Point) {
-        self.left_x = player_position.x - DISPLAY_WIDTH / 2;
-        self.right_x = player_position.x + DISPLAY_WIDTH / 2;
-        self.top_y = player_position.y - DISPLAY_HEIGHT / 2;
-        self.bottom_y = player_position.y + DISPLAY_HEIGHT / 2;
+        let left = player_position.x - DISPLAY_WIDTH / 2;
+        let top = player_position.y - DISPLAY_HEIGHT / 2;
+        self.left_x = left;
+        self.right_x = left + DISPLAY_WIDTH;
+        self.top_y = top;
+        self.bottom_y = top + DISPLAY_HEIGHT;
     }
 }
