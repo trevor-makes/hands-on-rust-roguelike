@@ -33,21 +33,4 @@ impl Map {
             Some(map_idx(point.x, point.y))
         }
     }
-
-    pub fn render(&self, ctx: &mut BTerm, camera: &Camera) {
-        ctx.set_active_console(0);
-        for y in camera.top_y .. camera.bottom_y {
-            for x in camera.left_x .. camera.right_x {
-                if self.in_bounds(Point::new(x, y)) {
-                    let idx = map_idx(x, y);
-                    let x = x - camera.left_x;
-                    let y = y - camera.top_y;
-                    match self.tiles[idx] {
-                        TileType::Floor => ctx.set(x, y, YELLOW, BLACK, to_cp437('.')),
-                        TileType::Wall => ctx.set(x, y, GREEN, BLACK, to_cp437('#')),
-                    }
-                }
-            }
-        }
-    }
 }
