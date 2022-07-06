@@ -9,16 +9,14 @@ pub fn random_move(ecs: &SubWorld, commands: &mut CommandBuffer) {
     let player = <Entity>::query()
         .filter(component::<Player>())
         .iter(ecs)
-        .next().unwrap();
+        .next()
+        .unwrap();
     <(Entity, &Point, &MovingRandomly)>::query().iter(ecs)
         .for_each(|(entity, pos, _)| {
             let mut rng = RandomNumberGenerator::new();
-            let destination = match rng.range(0, 4) {
-                0 => Point::new(-1, 0),
-                1 => Point::new(1, 0),
-                2 => Point::new(0, -1),
-                _ => Point::new(0, 1),
-            } + *pos;
+            let delta = rng.random_slice_entry(&[(-1, 0), (1, 0), (0, -1), (0, 1)])
+                .copied().map(|(x, y)| Point::new(x, y)).unwrap();
+            let destination = *pos + delta;
             let mut blocked = false;
             <(Entity, &Point, &Health)>::query()
                 .iter(ecs)
