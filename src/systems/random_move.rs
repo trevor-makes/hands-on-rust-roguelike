@@ -18,17 +18,17 @@ pub fn random_move(ecs: &SubWorld, commands: &mut CommandBuffer) {
                 .copied().map(|(x, y)| Point::new(x, y)).unwrap();
             let destination = *pos + delta;
             let mut blocked = false;
-            <(Entity, &Point, &Health)>::query()
+            <(Entity, &Point)>::query()
                 .iter(ecs)
-                .filter(|(_, target_pos, _)| **target_pos == destination)
-                .for_each(|(victim, _, _)| {
-                    if victim == player {
-                        commands.push(((), WantsToAttack {
-                            attacker: *entity,
-                            victim: *victim,
-                        }));
-                    }
-                    blocked = true;
+                .filter(|(_, target_pos)| **target_pos == destination)
+                .map(|(victim, _)| victim)
+                .inspect(|_| blocked = true)
+                .filter(|victim| *victim == player)
+                .for_each(|victim| {
+                    commands.push(((), WantsToAttack {
+                        attacker: *entity,
+                        victim: *victim,
+                    }));
                 });
             if !blocked {
                 commands.push(((), WantsToMove{ entity: *entity, destination }));
