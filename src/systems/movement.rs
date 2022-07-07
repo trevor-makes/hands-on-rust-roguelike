@@ -17,12 +17,13 @@ pub fn movement(
     <(Entity, &WantsToMove)>::query()
         .iter(ecs)
         .for_each(|(entity, want_move)| {
-            if map.can_enter_tile(want_move.destination) {
-                commands.add_component(want_move.entity, want_move.destination);
-                if want_move.entity == *player_entity {
-                    camera.on_player_move(want_move.destination);
+            let &WantsToMove(destination) = want_move;
+            if map.can_enter_tile(destination) {
+                commands.add_component(*entity, destination);
+                if *entity == *player_entity {
+                    camera.on_player_move(destination);
                 }
             }
-            commands.remove(*entity);
+            commands.remove_component::<WantsToMove>(*entity);
         });
 }

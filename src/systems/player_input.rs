@@ -38,10 +38,7 @@ pub fn player_input(
                     }));
                 });
             if !blocked {
-                commands.push(((), WantsToMove {
-                    entity: player_entity,
-                    destination,
-                }));
+                commands.add_component(player_entity, WantsToMove(destination));
             }
         } else if let Ok(mut health) = ecs.entry_mut(player_entity).unwrap().get_component_mut::<Health>() {
             // TODO this heal is too frequent; maybe add a cooldown so it only fires every N frames

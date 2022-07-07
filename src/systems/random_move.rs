@@ -12,7 +12,8 @@ pub fn random_move(ecs: &SubWorld, commands: &mut CommandBuffer) {
         .next()
         .unwrap();
 
-    <(Entity, &Point, &MovingRandomly)>::query().iter(ecs)
+    <(Entity, &Point, &MovingRandomly)>::query()
+        .iter(ecs)
         .for_each(|(entity, pos, _)| {
             let mut rng = RandomNumberGenerator::new();
             let delta = rng.random_slice_entry(&[(-1, 0), (1, 0), (0, -1), (0, 1)])
@@ -26,13 +27,14 @@ pub fn random_move(ecs: &SubWorld, commands: &mut CommandBuffer) {
                     *victim == player && **target_pos == destination)
                 .for_each(|(victim, _)| {
                     attacked = true;
+                    //commands.add_component(*entity, WantsToAttack {
                     commands.push(((), WantsToAttack {
                         attacker: *entity,
                         victim: *victim,
                     }));
                 });
             if !attacked {
-                commands.push(((), WantsToMove{ entity: *entity, destination }));
+                commands.add_component(*entity, WantsToMove(destination));
             }
         });
 }

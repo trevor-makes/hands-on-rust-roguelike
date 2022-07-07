@@ -19,10 +19,7 @@ pub struct MovingRandomly;
 pub struct ChasingPlayer;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub struct WantsToMove {
-    pub entity: Entity,
-    pub destination: Point,
-}
+pub struct WantsToMove(pub Point);
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct WantsToAttack {
