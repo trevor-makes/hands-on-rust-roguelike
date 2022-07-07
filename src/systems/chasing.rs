@@ -30,18 +30,17 @@ pub fn chasing(#[resource] map: &Map, ecs: &SubWorld, commands: &mut CommandBuff
                     *player_pos
                 };
 
-                let mut blocked = false;
+                let mut attacked = false;
                 <(Entity, &Point)>::query()
                     .filter(component::<Health>())
                     .iter(ecs)
-                    .filter(|(_, target_pos)| **target_pos == destination)
-                    .map(|(victim, _)| victim)
-                    .inspect(|_| blocked = true)
-                    .filter(|victim| *victim == player_entity)
-                    .for_each(|victim| {
+                    .filter(|(victim, target_pos)|
+                        *victim == player_entity && **target_pos == destination)
+                    .for_each(|(victim, _)| {
+                        attacked = true;
                         commands.push(((), WantsToAttack{attacker: *entity, victim: *victim}));
                     });
-                if !blocked {
+                if !attacked {
                     commands.push(((), WantsToMove{entity: *entity, destination}));
                 }
             }
