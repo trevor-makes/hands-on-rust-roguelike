@@ -11,17 +11,17 @@ pub fn combat(ecs: &mut SubWorld, commands: &mut CommandBuffer) {
         .copied()
         .next()
         .unwrap();
-    let victims = <(Entity, &WantsToAttack)>::query()
+    let attacks = <(Entity, &WantsToAttack)>::query()
         .iter(ecs)
-        .map(|(entity, attack)| (*entity, attack.victim))
+        .map(|(attacker, WantsToAttack(victim))| (*attacker, *victim))
         .collect::<Vec<_>>();
-    victims.iter().for_each(|(message, victim)| {
-        if let Ok(mut health) = ecs.entry_mut(*victim).unwrap().get_component_mut::<Health>() {
+    for (attacker, victim) in attacks {
+        if let Ok(mut health) = ecs.entry_mut(victim).unwrap().get_component_mut::<Health>() {
             health.current -= 1;
-            if health.current < 1 && *victim != player {
-                commands.remove(*victim);
+            if health.current < 1 && victim != player {
+                commands.remove(victim);
             }
         }
-        commands.remove(*message);
-    });
+        commands.remove_component::<WantsToAttack>(attacker);
+    };
 }

@@ -25,19 +25,16 @@ pub fn player_input(
             _ => None,
         } {
             let destination = player_pos + delta;
-            let mut blocked = false;
+            let mut attacked = false;
             <(Entity, &Point)>::query()
                 .filter(component::<Enemy>())
                 .iter(ecs)
                 .filter(|(_, pos)| **pos == destination)
                 .for_each(|(entity, _)| {
-                    blocked = true;
-                    commands.push(((), WantsToAttack {
-                        attacker: player_entity,
-                        victim: *entity,
-                    }));
+                    attacked = true;
+                    commands.add_component(player_entity, WantsToAttack(*entity));
                 });
-            if !blocked {
+            if !attacked {
                 commands.add_component(player_entity, WantsToMove(destination));
             }
         } else if let Ok(mut health) = ecs.entry_mut(player_entity).unwrap().get_component_mut::<Health>() {

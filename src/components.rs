@@ -22,10 +22,7 @@ pub struct ChasingPlayer;
 pub struct WantsToMove(pub Point);
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub struct WantsToAttack {
-    pub attacker: Entity,
-    pub victim: Entity,
-}
+pub struct WantsToAttack(pub Entity);
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Health {

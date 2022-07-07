@@ -38,11 +38,7 @@ pub fn chasing(#[resource] map: &Map, ecs: &SubWorld, commands: &mut CommandBuff
                         *victim == player_entity && **target_pos == destination)
                     .for_each(|(victim, _)| {
                         attacked = true;
-                        //commands.add_component(*entity, WantsToAttack {
-                        commands.push(((), WantsToAttack {
-                            attacker: *entity,
-                            victim: *victim,
-                        }));
+                        commands.add_component(*entity, WantsToAttack(*victim));
                     });
                 if !attacked {
                     commands.add_component(*entity, WantsToMove(destination));
