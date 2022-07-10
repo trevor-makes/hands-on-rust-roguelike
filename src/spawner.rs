@@ -3,7 +3,8 @@ use crate::prelude::*;
 pub fn spawn_player(ecs: &mut World, pos: Point) {
     ecs.push((Player, pos,
         Render { color: ColorPair::new(WHITE, BLACK), glyph: to_cp437('@'), },
-        Health { current: 10, max: 10 }));
+        Health { current: 3, max: 3 },
+    ));
 }
 
 fn goblin() -> (i32, String, FontCharType) {
@@ -19,6 +20,14 @@ pub fn spawn_monster(ecs: &mut World, rng: &mut RandomNumberGenerator, pos: Poin
         1..=8 => goblin(), _ => orc(),
     };
     ecs.push((Enemy, ChasingPlayer, pos, Name(name),
+        Render { color: ColorPair::new(WHITE, BLACK), glyph, },
         Health { current: hp, max: hp },
-        Render { color: ColorPair::new(WHITE, BLACK), glyph, }));
+    ));
+}
+
+pub fn spawn_amulet(ecs: &mut World, pos: Point) {
+    ecs.push((Item, AmuletOfYala, pos,
+        Render { color: ColorPair::new(WHITE, BLACK), glyph: to_cp437('|'), },
+        Name("Amulet of Yala".to_string()),
+    ));
 }

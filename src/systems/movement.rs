@@ -10,6 +10,7 @@ pub fn movement_phase1(
 ) {
     // Iterate over (Point[,WantsToMove])x(Point[,WantsToMove]) combinations
     <(Entity, &Point)>::query()
+        .filter(!component::<Item>())
         .iter(ecs)
         .for_each(|(&entity_a, &loc_a)| {
             // If A is attempting to move...
@@ -19,7 +20,9 @@ pub fn movement_phase1(
                 // NOTE the "can enter tile" state could change dynamically during system processing
                 // (door is closed, trap is triggered), so an attempted move by player/AI could be blocked
                 if map.can_enter_tile(move_a) {
-                    for (&entity_b, &loc_b) in <(Entity, &Point)>::query().iter(ecs) {
+                    for (&entity_b, &loc_b) in <(Entity, &Point)>::query()
+                        .filter(!component::<Item>())
+                        .iter(ecs) {
                         // When entity_b reaches entity_a, increment entity_a and start over
                         if entity_b == entity_a {
                             break;
@@ -52,7 +55,7 @@ pub fn movement_phase1(
                 }
             } else { // A is not moving
                 for &entity_b in <Entity>::query()
-                    .filter(component::<Point>())
+                    .filter(component::<Point>() & !component::<Item>())
                     .iter(ecs) {
                     // When entity_b reaches entity_a, increment entity_a and start over
                     if entity_b == entity_a {
