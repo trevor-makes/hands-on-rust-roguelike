@@ -22,6 +22,9 @@ pub struct ChasingPlayer;
 pub struct WantsToMove(pub Point);
 
 #[derive(Clone, Copy, Debug, PartialEq)]
+pub struct BlockedBy(pub Entity);
+
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct WantsToAttack(pub Entity);
 
 #[derive(Clone, Copy, Debug, PartialEq)]
