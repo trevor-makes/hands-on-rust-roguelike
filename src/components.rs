@@ -15,10 +15,10 @@ pub struct Player;
 pub struct Enemy;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub struct MovingRandomly;
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct ChasingPlayer;
+pub enum AIState {
+    MovingRandomly,
+    ChasingPlayer,
+}
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct WantsToMove(pub Point);

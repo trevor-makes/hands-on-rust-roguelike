@@ -4,6 +4,7 @@ pub fn spawn_player(ecs: &mut World, pos: Point) {
     ecs.push((
         Player,
         pos,
+        Name("Player".to_string()),
         Render { color: ColorPair::new(WHITE, BLACK), glyph: to_cp437('@'), },
         Health { current: 3, max: 3 },
         FieldOfView::new(8),
@@ -24,7 +25,7 @@ pub fn spawn_monster(ecs: &mut World, rng: &mut RandomNumberGenerator, pos: Poin
     };
     ecs.push((
         Enemy,
-        ChasingPlayer,
+        AIState::ChasingPlayer,
         pos,
         Name(name),
         Render { color: ColorPair::new(WHITE, BLACK), glyph, },
