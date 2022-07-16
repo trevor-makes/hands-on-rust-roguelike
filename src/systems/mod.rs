@@ -5,6 +5,7 @@ mod hud;
 mod tooltips;
 mod random_move;
 mod chasing;
+mod fov;
 mod movement;
 mod combat;
 mod end_turn;
@@ -17,6 +18,7 @@ use hud::hud_system;
 use tooltips::tooltips_system;
 use random_move::random_move_system;
 use chasing::chasing_system;
+use fov::fov_system;
 use movement::{movement_phase1_system, movement_phase2_system};
 use combat::combat_system;
 use end_turn::end_turn_system;
@@ -24,6 +26,7 @@ use end_turn::end_turn_system;
 pub fn build_input_scheduler() -> Schedule {
     Schedule::builder()
         .add_system(player_input_system())
+        .add_system(fov_system())
         .flush()
         .add_system(map_render_system())
         .add_system(entity_render_system())
@@ -39,6 +42,8 @@ pub fn build_player_scheduler() -> Schedule {
         .add_system(movement_phase1_system())
         .flush()
         .add_system(movement_phase2_system())
+        .flush()
+        .add_system(fov_system())
         .flush()
         .add_system(map_render_system())
         .add_system(entity_render_system())
@@ -57,6 +62,8 @@ pub fn build_monster_scheduler() -> Schedule {
         .add_system(movement_phase1_system())
         .flush()
         .add_system(movement_phase2_system())
+        .flush()
+        .add_system(fov_system())
         .flush()
         .add_system(map_render_system())
         .add_system(entity_render_system())

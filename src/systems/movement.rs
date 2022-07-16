@@ -76,16 +76,13 @@ pub fn movement_phase1(
         });
 }
 
-fn is_entity_moving(ecs: &SubWorld, entity: Entity) -> Option<Point> {
+fn is_entity_moving(ecs: &SubWorld, entry: &EntryRef) -> Option<Point> {
     // TODO if we could set a mut flag when we already computed this, we'd have dynamic programming
-    if let Ok(&WantsToMove(move_to)) = ecs
-        .entry_ref(entity).unwrap()
-        .get_component() {
-        if let Ok(&BlockedBy(blocker)) = ecs
-            .entry_ref(entity).unwrap()
-            .get_component() {
+    if let Ok(&WantsToMove(move_to)) = entry.get_component() {
+        if let Ok(&BlockedBy(blocker)) = entry.get_component() {
             // TODO this could crash if a cycle forms
-            is_entity_moving(ecs, blocker).map(|_| move_to)
+            let blocker = ecs.entry_ref(blocker).unwrap();
+            is_entity_moving(ecs, &blocker).map(|_| move_to)
         } else {
             Some(move_to)
         }
@@ -98,6 +95,7 @@ fn is_entity_moving(ecs: &SubWorld, entity: Entity) -> Option<Point> {
 #[read_component(WantsToMove)]
 #[read_component(BlockedBy)]
 #[read_component(Player)]
+#[read_component(FieldOfView)]
 pub fn movement_phase2(
     #[resource] camera: &mut Camera,
     ecs: &SubWorld,
@@ -114,7 +112,11 @@ pub fn movement_phase2(
         .filter(component::<WantsToMove>())
         .iter(ecs)
         .for_each(|&entity| {
-            if let Some(move_to) = is_entity_moving(ecs, entity) {
+            let entry = ecs.entry_ref(entity).unwrap();
+            if let Some(move_to) = is_entity_moving(ecs, &entry) {
+                if let Ok(fov) = entry.get_component::<FieldOfView>() {
+                    commands.add_component(entity, fov.clone_dirty());
+                }
                 commands.add_component(entity, move_to);
                 if entity == player_entity {
                     camera.on_player_move(move_to);

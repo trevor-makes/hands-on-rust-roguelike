@@ -9,6 +9,7 @@ mod turn_state;
 mod prelude {
     pub use bracket_lib::prelude::*;
     pub use legion::*;
+    pub use legion::world::EntryRef;
     pub use legion::world::SubWorld;
     pub use legion::systems::CommandBuffer;
     pub const SCREEN_WIDTH: i32 = 80;
