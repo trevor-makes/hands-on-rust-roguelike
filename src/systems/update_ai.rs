@@ -14,7 +14,7 @@ pub fn update_ai(ecs: &mut SubWorld) {
         .iter_mut(ecs)
         .for_each(|(state, fov)| {
             // Chase the player if visible, otherwise move randomly
-            *state = if fov.visible_tiles.contains(&player_pos) {
+            *state = if fov.visible.contains(&player_pos) {
                 AIState::ChasingPlayer
             } else {
                 AIState::MovingRandomly

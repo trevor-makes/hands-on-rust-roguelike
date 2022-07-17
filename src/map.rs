@@ -1,11 +1,13 @@
 use crate::prelude::*;
-const NUM_TILES: usize = (SCREEN_WIDTH * SCREEN_HEIGHT) as usize;
+
+use std::collections::HashSet;
 
 #[derive(Copy, Clone, PartialEq)]
 pub enum TileType { Wall, Floor, }
 
 pub struct Map {
     pub tiles: Vec<TileType>,
+    pub revealed: HashSet<Point>,
 }
 
 pub fn map_idx(x: i32, y: i32) -> usize {
@@ -47,7 +49,7 @@ impl BaseMap for Map {
 
 impl Map {
     pub fn new() -> Self {
-        Self { tiles: vec![TileType::Floor; NUM_TILES], }
+        Self { tiles: vec![TileType::Floor; NUM_TILES], revealed: HashSet::new() }
     }
 
     pub fn in_bounds(&self, point: Point) -> bool {

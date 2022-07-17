@@ -15,7 +15,7 @@ pub fn entity_render(ecs: &SubWorld, #[resource] camera: &Camera) {
     let offset = Point::new(camera.left_x, camera.top_y);
     <(&Point, &Render)>::query()
         .iter(ecs)
-        .filter(|(pos, _)| player_fov.visible_tiles.contains(pos))
+        .filter(|(pos, _)| player_fov.visible.contains(pos))
         .for_each(|(pos, render)| {
             draw_batch.set(*pos - offset, render.color, render.glyph);
         });

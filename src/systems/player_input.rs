@@ -11,10 +11,9 @@ pub fn player_input(
     #[resource] key: &Option<VirtualKeyCode>,
     #[resource] turn_state: &mut TurnState,
 ) {
-    let (player_entity, player_pos) = <(Entity, &Point)>::query()
+    let (&player, &player_pos) = <(Entity, &Point)>::query()
         .filter(component::<Player>())
         .iter(ecs)
-        .map(|(entity, pos)| (*entity, *pos))
         .next().unwrap();
     if let Some(key) = key {
         if let Some(delta) = match key {
@@ -29,15 +28,15 @@ pub fn player_input(
             <(Entity, &Point)>::query()
                 .filter(component::<Enemy>())
                 .iter(ecs)
-                .filter(|(_, pos)| **pos == destination)
-                .for_each(|(entity, _)| {
+                .filter(|(_, &pos)| pos == destination)
+                .for_each(|(&entity, _)| {
                     attacked = true;
-                    commands.add_component(player_entity, WantsToAttack(*entity));
+                    commands.add_component(player, WantsToAttack(entity));
                 });
             if !attacked {
-                commands.add_component(player_entity, WantsToMove(destination));
+                commands.add_component(player, WantsToMove(destination));
             }
-        } else if let Ok(mut health) = ecs.entry_mut(player_entity).unwrap().get_component_mut::<Health>() {
+        } else if let Ok(mut health) = ecs.entry_mut(player).unwrap().get_component_mut::<Health>() {
             // TODO this heal is too frequent; maybe add a cooldown so it only fires every N frames
             health.current = i32::min(health.max, health.current + 1);
         }

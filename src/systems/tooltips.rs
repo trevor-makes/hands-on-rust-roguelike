@@ -18,7 +18,7 @@ pub fn tooltips(ecs: &SubWorld, #[resource] mouse_pos: &Point, #[resource] camer
     draw_batch.target(2);
     <(Entity, &Point, &Name)>::query()
         .iter(ecs)
-        .filter(|(_, pos, _)| **pos == map_pos && player_fov.visible_tiles.contains(pos))
+        .filter(|(_, &pos, _)| pos == map_pos && player_fov.visible.contains(&pos))
         .for_each(|(entity, _, name)| {
             let display = match ecs.entry_ref(*entity).unwrap().get_component::<Health>() {
                 Ok(health) => format!("{} : {} hp", &name.0, health.current),
