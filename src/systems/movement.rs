@@ -1,5 +1,7 @@
 use crate::prelude::*;
 
+use std::collections::HashSet;
+
 #[system]
 #[read_component(WantsToMove)]
 #[read_component(Point)]
@@ -76,19 +78,33 @@ pub fn movement_phase1(
         });
 }
 
-fn is_entity_moving(ecs: &SubWorld, entry: &EntryRef) -> Option<Point> {
-    // TODO if we could set a mut flag when we already computed this, we'd have dynamic programming
-    if let Ok(&WantsToMove(move_to)) = entry.get_component() {
-        if let Ok(&BlockedBy(blocker)) = entry.get_component() {
-            // TODO this could crash if a cycle forms
-            let blocker = ecs.entry_ref(blocker).unwrap();
-            is_entity_moving(ecs, &blocker).map(|_| move_to)
+
+fn is_entity_moving(ecs: &SubWorld, entity: Entity, entry: &EntryRef) -> Option<Point> {
+    fn recursive_impl(ecs: &SubWorld, entity: Entity, entry: &EntryRef, visited: &mut HashSet::<Entity>) -> Option<Point> {
+        // TODO the ECS is making this traversal a bit difficult; maybe implement the traversal graph outside of ECS
+        // TODO if we could set a mut flag when we already computed this, we'd have dynamic programming
+        visited.insert(entity);
+        if let Ok(&WantsToMove(move_to)) = entry.get_component() {
+            if let Ok(&BlockedBy(blocker)) = entry.get_component() {
+                // Break cycles in the blocking graph by checking for already visited nodes
+                if visited.contains(&entity) {
+                    // TODO in some cases movement should be permitted:
+                    // - 2 entites swapping places?
+                    // - 4 entities chasing each other in a circle? but a 5th entity trying to jump in SHOULD be blocked?
+                    None
+                } else {
+                    let blocker_ref = ecs.entry_ref(blocker).unwrap();
+                    recursive_impl(ecs, blocker, &blocker_ref, visited).map(|_| move_to)
+                }
+            } else {
+                Some(move_to)
+            }
         } else {
-            Some(move_to)
+            None
         }
-    } else {
-        None
     }
+    let mut visited = HashSet::<Entity>::new();
+    recursive_impl(ecs, entity, entry, &mut visited)
 }
 
 #[system]
@@ -113,7 +129,7 @@ pub fn movement_phase2(
         .iter(ecs)
         .for_each(|&entity| {
             let entry = ecs.entry_ref(entity).unwrap();
-            if let Some(move_to) = is_entity_moving(ecs, &entry) {
+            if let Some(move_to) = is_entity_moving(ecs, entity, &entry) {
                 if let Ok(fov) = entry.get_component::<FieldOfView>() {
                     commands.add_component(entity, fov.clone_dirty());
                 }
