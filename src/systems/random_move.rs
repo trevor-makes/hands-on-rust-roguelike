@@ -5,7 +5,7 @@ use crate::prelude::*;
 #[read_component(AIState)]
 #[read_component(Player)]
 pub fn random_move(ecs: &SubWorld, commands: &mut CommandBuffer) {
-    let &player = <Entity>::query()
+    let (&player, &player_pos) = <(Entity, &Point)>::query()
         .filter(component::<Player>())
         .iter(ecs)
         .next().unwrap();
@@ -13,23 +13,18 @@ pub fn random_move(ecs: &SubWorld, commands: &mut CommandBuffer) {
     <(Entity, &Point, &AIState)>::query()
         .iter(ecs)
         .filter(|(_, _, &state)| state == AIState::MovingRandomly)
-        .for_each(|(entity, pos, _)| {
+        .for_each(|(&entity, &pos, _)| {
+            // Select an adjacent tile randomly
             let mut rng = RandomNumberGenerator::new();
             let delta = rng.random_slice_entry(&[(-1, 0), (1, 0), (0, -1), (0, 1)])
                 .copied().map(|(x, y)| Point::new(x, y)).unwrap();
-            let destination = *pos + delta;
+            let move_pos = pos + delta;
 
-            let mut attacked = false;
-            <(Entity, &Point)>::query()
-                .iter(ecs)
-                .filter(|(&victim, &target_pos)|
-                    victim == player && target_pos == destination)
-                .for_each(|(victim, _)| {
-                    attacked = true;
-                    commands.add_component(*entity, WantsToAttack(*victim));
-                });
-            if !attacked {
-                commands.add_component(*entity, WantsToMove(destination));
+            // Attack if player is in the way
+            if move_pos == player_pos {
+                commands.add_component(entity, WantsToAttack(player));
+            } else {
+                commands.add_component(entity, WantsToMove(move_pos));
             }
         });
 }
